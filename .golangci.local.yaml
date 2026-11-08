@@ -1,0 +1,7 @@
+linters:
+  exclusions:
+    rules:
+      # The GitHub API uses snake_case JSON.
+      - path: internal/github/
+        linters:
+          - tagliatelle

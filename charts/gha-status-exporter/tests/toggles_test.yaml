@@ -1,0 +1,42 @@
+suite: toggles
+release:
+  name: ghs
+  namespace: ghs
+templates:
+  - templates/deployment.yaml
+  - templates/podmonitor.yaml
+tests:
+  - it: podMonitor on scrapes the http port
+    set:
+      owner: yama6a
+      podMonitor.enabled: true
+    template: templates/podmonitor.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PodMonitor
+      - equal:
+          path: spec.podMetricsEndpoints[0].port
+          value: http
+      - equal:
+          path: spec.podMetricsEndpoints[0].path
+          value: /metrics
+
+  - it: podMonitor on with an empty owner renders nothing
+    set:
+      podMonitor.enabled: true
+    template: templates/podmonitor.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: fullnameOverride renames the deployment
+    set:
+      owner: yama6a
+      fullnameOverride: ghs-custom
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: ghs-custom

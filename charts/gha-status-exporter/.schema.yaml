@@ -1,0 +1,4 @@
+schemaRoot:
+  title: gha-status-exporter values
+  # strict, or a mistyped values key is silently ignored
+  additionalProperties: false
