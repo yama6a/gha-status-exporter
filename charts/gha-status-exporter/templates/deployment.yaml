@@ -48,6 +48,7 @@ spec:
             - {name: GHA_STATUS_OWNER, value: {{ .Values.owner | quote }}}
             - {name: GHA_STATUS_SCAN_INTERVAL, value: {{ .Values.scanInterval | quote }}}
             - {name: GHA_STATUS_RATE_LIMIT_RESERVE, value: {{ .Values.rateLimitReserve | int64 | quote }}}
+            - {name: GHA_STATUS_MAX_RUN_AGE, value: {{ .Values.maxRunAge | quote }}}
             - {name: GHA_STATUS_LISTEN, value: ":{{ .Values.port }}"}
             - {name: GHA_STATUS_LOG_LEVEL, value: {{ .Values.logLevel | quote }}}
             - name: GHA_STATUS_TOKEN

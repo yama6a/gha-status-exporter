@@ -14,7 +14,7 @@ func setEnv(t *testing.T, kv map[string]string) {
 	t.Helper()
 	for _, k := range []string{
 		"GHA_STATUS_OWNER", "GHA_STATUS_TOKEN", "GHA_STATUS_SCAN_INTERVAL",
-		"GHA_STATUS_RATE_LIMIT_RESERVE", "GHA_STATUS_LISTEN", "GHA_STATUS_LOG_LEVEL",
+		"GHA_STATUS_RATE_LIMIT_RESERVE", "GHA_STATUS_MAX_RUN_AGE", "GHA_STATUS_LISTEN", "GHA_STATUS_LOG_LEVEL",
 	} {
 		t.Setenv(k, kv[k])
 	}
@@ -45,6 +45,26 @@ func TestLoadOverrides(t *testing.T) {
 	require.Equal(t, zapcore.DebugLevel, c.LogLevel)
 }
 
+func TestLoadMaxRunAge(t *testing.T) {
+	tests := []struct {
+		in   string
+		want time.Duration
+	}{
+		{"8d", 8 * 24 * time.Hour},
+		{"192h", 192 * time.Hour},
+		{"30m", 30 * time.Minute},
+		{"0", 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			setEnv(t, map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_MAX_RUN_AGE": tt.in})
+			c, err := config.Load()
+			require.NoError(t, err)
+			require.Equal(t, tt.want, c.MaxRunAge)
+		})
+	}
+}
+
 func TestLoadErrors(t *testing.T) {
 	tests := []struct {
 		name string
@@ -55,6 +75,9 @@ func TestLoadErrors(t *testing.T) {
 		{"bad interval", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_SCAN_INTERVAL": "soon"}},
 		{"zero interval", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_SCAN_INTERVAL": "0s"}},
 		{"bad reserve", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_RATE_LIMIT_RESERVE": "-1"}},
+		{"negative max age", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_MAX_RUN_AGE": "-1h"}},
+		{"unknown max age unit", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_MAX_RUN_AGE": "8x"}},
+		{"negative max age days", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_MAX_RUN_AGE": "-8d"}},
 		{"bad level", map[string]string{"GHA_STATUS_OWNER": "o", "GHA_STATUS_TOKEN": "t", "GHA_STATUS_LOG_LEVEL": "loud"}},
 	}
 	for _, tt := range tests {

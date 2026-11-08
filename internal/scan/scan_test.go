@@ -512,3 +512,36 @@ func TestTokenNeverReachesTheLogs(t *testing.T) {
 		require.NotContains(t, fmt.Sprint(e.Message, e.ContextMap()), token)
 	}
 }
+
+func TestMaxRunAge(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		maxAge time.Duration
+		age    time.Duration
+		want   string
+	}{
+		{"22 days old, 8d", 8 * 24 * time.Hour, 22 * 24 * time.Hour, ""},
+		{"22 days old, off", 0, 22 * 24 * time.Hour, "1"},
+		{"2 days old, 8d", 8 * 24 * time.Hour, 2 * 24 * time.Hour, "1"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			h := newHarness(t)
+			h.s.MaxRunAge = tt.maxAge
+			old := run(1, "failure")
+			old.UpdatedAt = time.Now().Add(-tt.age)
+			listOne(h.f, old, run(1, "success"))
+
+			require.NoError(t, h.s.Scan(t.Context()))
+
+			require.Equal(t, tt.want, h.failed(t, "a"))
+			if tt.want == "" {
+				require.Empty(t, h.series(t, "gha_workflow_last_run_timestamp_seconds"))
+			}
+		})
+	}
+}

@@ -31,6 +31,8 @@ type Scanner struct {
 	Owner    string
 	Reserve  int
 	Interval time.Duration
+	// MaxRunAge drops a workflow whose deciding run is older. Zero keeps every workflow.
+	MaxRunAge time.Duration
 
 	state map[string][]metrics.Workflow
 }
@@ -166,7 +168,7 @@ func (s *Scanner) workflows(ctx context.Context, r github.Repo) ([]metrics.Workf
 			return nil, fmt.Errorf("list runs of %s/%s: %w", r.Name, wf.Path, err)
 		}
 		failed, updated, ok := decide(runs, r)
-		if !ok {
+		if !ok || s.MaxRunAge > 0 && time.Since(updated) > s.MaxRunAge {
 			continue
 		}
 		out = append(out, metrics.Workflow{
