@@ -1,0 +1,44 @@
+suite: defaults
+release:
+  name: ghs
+  namespace: ghs
+templates:
+  - templates/deployment.yaml
+  - templates/podmonitor.yaml
+tests:
+  - it: renders nothing without an owner
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders the deployment for an owner
+    set:
+      owner: yama6a
+    template: templates/deployment.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: gha-status-exporter
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/yama6a/gha-status-exporter:0.0.0
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content: {name: GHA_STATUS_OWNER, value: yama6a}
+      - equal:
+          path: spec.template.spec.containers[0].env[5].valueFrom.secretKeyRef
+          value: {name: gha-status-exporter-token, key: GITHUB_TOKEN}
+      - notExists:
+          path: spec.template.spec.containers[0].env[5].valueFrom.secretKeyRef.optional
+
+  - it: renders no podmonitor
+    set:
+      owner: yama6a
+    template: templates/podmonitor.yaml
+    asserts:
+      - hasDocuments:
+          count: 0

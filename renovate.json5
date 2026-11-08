@@ -1,0 +1,12 @@
+{
+  // The schedule is the cron in .github/workflows/renovate.yaml, so workflow_dispatch works too.
+  // Every automerged non-major bump cuts a release. Add minimumReleaseAge to slow that down.
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "github>yama6a/gha:default.json5",
+    "github>yama6a/gha:go.json5",
+  ],
+
+  // ci.yaml fails a PR without a release label. A dependency bump changes no flag, env or behaviour.
+  labels: ["patch"],
+}

@@ -1,0 +1,67 @@
+{{- if .Values.owner }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ghs.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ghs.labels" . | nindent 4 }}
+spec:
+  replicas: 1 # the ETag cache and the failure state are in memory, so a second replica would double the API calls
+  revisionHistoryLimit: 0
+  strategy:
+    type: Recreate # never two scanners sharing one rate limit during a roll
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ghs.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{- include "ghs.labels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: exporter
+          image: {{ include "ghs.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - {name: GHA_STATUS_OWNER, value: {{ .Values.owner | quote }}}
+            - {name: GHA_STATUS_SCAN_INTERVAL, value: {{ .Values.scanInterval | quote }}}
+            - {name: GHA_STATUS_RATE_LIMIT_RESERVE, value: {{ .Values.rateLimitReserve | int64 | quote }}}
+            - {name: GHA_STATUS_LISTEN, value: ":{{ .Values.port }}"}
+            - {name: GHA_STATUS_LOG_LEVEL, value: {{ .Values.logLevel | quote }}}
+            - name: GHA_STATUS_TOKEN
+              valueFrom:
+                secretKeyRef: {name: {{ .Values.token.secretName | quote }}, key: {{ .Values.token.secretKey | quote }}}
+          ports:
+            - {name: http, containerPort: {{ .Values.port }}}
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: {{ .Values.resources | toYaml | nindent 12 }}
+{{- end }}

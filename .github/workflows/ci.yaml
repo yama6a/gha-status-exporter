@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+    # labeled/unlabeled so the gate re-runs on a label change, not just on a push.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  # A PR restores caches only from its own branch or main, so this run fills the cache every PR reads.
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  release-label:
+    name: release label
+    # a push to main carries no PR labels, so the gate runs on the PR only
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-26.04-arm
+    steps:
+      - name: Exactly one release label
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          picked=$(jq -r '.[]' <<<"$LABELS" | grep -x -E 'patch|minor|major|skip-release' || true)
+          count=$(grep -c . <<<"$picked" || true)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::${count} release labels (${picked//$'\n'/, }); need exactly one of patch, minor, major, skip-release"
+            exit 1
+          fi
+          echo "release label: ${picked}"
+
+  go:
+    uses: yama6a/gha/.github/workflows/go-ci.yaml@v2
+
+  chart:
+    runs-on: ubuntu-26.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: yama6a/gha/.github/actions/helm-chart-checks@v2
+        with:
+          charts: charts/gha-status-exporter
+          schema: check
+
+  yaml:
+    runs-on: ubuntu-26.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: yama6a/gha/.github/actions/yaml-checks@v2
+
+  renovate-config:
+    runs-on: ubuntu-26.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # a broken config silently stops every dependency update
+      - uses: yama6a/gha/.github/actions/validate-renovate-config@v2
+        with:
+          config-file: renovate.json5

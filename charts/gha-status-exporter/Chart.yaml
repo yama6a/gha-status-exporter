@@ -1,0 +1,11 @@
+apiVersion: v2
+name: gha-status-exporter
+description: Exports whether the latest GitHub Actions run of each workflow failed on the default branch.
+type: application
+home: https://github.com/yama6a/gha-status-exporter
+sources:
+  - https://github.com/yama6a/gha-status-exporter
+keywords: [github-actions, prometheus, exporter, alerting]
+# The release overwrites both with its tag. These only matter for a local helm template.
+version: 0.0.0
+appVersion: "0.0.0"

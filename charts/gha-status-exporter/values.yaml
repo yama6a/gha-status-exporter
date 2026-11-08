@@ -1,0 +1,32 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/yama6a/gha-status-exporter
+  tag: ""                    # OPTIONAL: (string) empty uses the chart's appVersion, which the release pins to the matching image
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+owner: ""                    # OPTIONAL: (string) GitHub user or org whose repos are watched. Empty renders nothing
+scanInterval: 5m             # OPTIONAL: (duration) time between scan starts
+rateLimitReserve: 1000       # OPTIONAL: (int) skip a scan while fewer API requests than this remain in the hour
+logLevel: info               # OPTIONAL: (string) a zap level
+port: 8080                   # OPTIONAL: (int) probes and /metrics
+
+token:
+  secretName: gha-status-exporter-token # OPTIONAL: (string) an existing Secret in the release namespace. The pod does not start without it
+  secretKey: GITHUB_TOKEN               # OPTIONAL: (string) key in that Secret that holds the fine-grained PAT
+
+priorityClassName: ""
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+
+podMonitor:
+  enabled: false # OPTIONAL: (bool) needs the Prometheus operator CRDs
+  interval: 60s
+  labels: {}
+
+resources:
+  requests: {cpu: 10m, memory: 24Mi}
+  limits: {memory: 64Mi}
