@@ -31,7 +31,7 @@ type Scanner struct {
 	Owner    string
 	Reserve  int
 	Interval time.Duration
-	// MaxRunAge drops a workflow whose deciding run is older. Zero keeps every workflow.
+	// MaxRunAge drops a workflow whose deciding run was created longer ago than this. Zero keeps every workflow.
 	MaxRunAge time.Duration
 
 	state map[string][]metrics.Workflow
@@ -167,14 +167,14 @@ func (s *Scanner) workflows(ctx context.Context, r github.Repo) ([]metrics.Workf
 		if err != nil {
 			return nil, fmt.Errorf("list runs of %s/%s: %w", r.Name, wf.Path, err)
 		}
-		failed, updated, ok := decide(runs, r)
-		if !ok || s.MaxRunAge > 0 && time.Since(updated) > s.MaxRunAge {
+		failed, deciding, ok := decide(runs, r)
+		if !ok || s.MaxRunAge > 0 && time.Since(deciding.CreatedAt) > s.MaxRunAge {
 			continue
 		}
 		out = append(out, metrics.Workflow{
 			Owner: s.Owner, Repo: r.Name, Branch: r.DefaultBranch,
 			Workflow: strings.TrimPrefix(wf.Path, workflowPrefix), Name: wf.Name,
-			Failed: failed, Updated: updated,
+			Failed: failed, Updated: deciding.UpdatedAt,
 		})
 	}
 	return out, nil
@@ -182,19 +182,19 @@ func (s *Scanner) workflows(ctx context.Context, r github.Repo) ([]metrics.Workf
 
 // decide returns the verdict of the newest run that succeeded or failed.
 // Cancelled, skipped and similar runs say nothing, so the run before decides.
-func decide(runs []github.Run, r github.Repo) (failed bool, updated time.Time, ok bool) {
+func decide(runs []github.Run, r github.Repo) (failed bool, deciding github.Run, ok bool) {
 	for _, run := range runs {
 		if run.Status != "completed" || run.HeadBranch != r.DefaultBranch || run.HeadRepository.ID != r.ID {
 			continue
 		}
 		switch run.Conclusion {
 		case "success":
-			return false, run.UpdatedAt, true
+			return false, run, true
 		case "failure", "timed_out", "startup_failure":
-			return true, run.UpdatedAt, true
+			return true, run, true
 		}
 	}
-	return false, time.Time{}, false
+	return false, github.Run{}, false
 }
 
 func (s *Scanner) publish() {

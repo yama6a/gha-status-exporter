@@ -10,7 +10,7 @@ imagePullSecrets: []
 owner: ""                    # OPTIONAL: (string) GitHub user or org whose repos are watched. Empty renders nothing
 scanInterval: 5m             # OPTIONAL: (duration) time between scan starts
 rateLimitReserve: 1000       # OPTIONAL: (int) skip a scan while fewer API requests than this remain in the hour
-maxRunAge: "0"             # OPTIONAL: (string) drop a workflow whose latest run is older than this, such as 192h or 8d. 0 keeps every workflow
+maxRunAge: "0"             # OPTIONAL: (string) drop a workflow whose latest run was created longer ago than this, such as 192h or 8d. A re-run of an old run does not reset the age. 0 keeps every workflow
 logLevel: info               # OPTIONAL: (string) a zap level
 port: 8080                   # OPTIONAL: (int) probes and /metrics
 

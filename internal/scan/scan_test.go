@@ -126,7 +126,7 @@ func repo(id int64, name string) github.Repo {
 func run(repoID int64, conclusion string) github.Run {
 	r := github.Run{
 		Status: "completed", Conclusion: conclusion, HeadBranch: "main",
-		UpdatedAt: time.Unix(1700000000, 0).UTC(),
+		CreatedAt: time.Unix(1700000000, 0).UTC(), UpdatedAt: time.Unix(1700000000, 0).UTC(),
 	}
 	r.HeadRepository.ID = repoID
 	return r
@@ -522,7 +522,7 @@ func TestMaxRunAge(t *testing.T) {
 		age    time.Duration
 		want   string
 	}{
-		{"22 days old, 8d", 8 * 24 * time.Hour, 22 * 24 * time.Hour, ""},
+		{"22 days old, updated 1h ago, 8d", 8 * 24 * time.Hour, 22 * 24 * time.Hour, ""},
 		{"22 days old, off", 0, 22 * 24 * time.Hour, "1"},
 		{"2 days old, 8d", 8 * 24 * time.Hour, 2 * 24 * time.Hour, "1"},
 	}
@@ -533,7 +533,8 @@ func TestMaxRunAge(t *testing.T) {
 			h := newHarness(t)
 			h.s.MaxRunAge = tt.maxAge
 			old := run(1, "failure")
-			old.UpdatedAt = time.Now().Add(-tt.age)
+			old.CreatedAt = time.Now().Add(-tt.age)
+			old.UpdatedAt = time.Now().Add(-time.Hour)
 			listOne(h.f, old, run(1, "success"))
 
 			require.NoError(t, h.s.Scan(t.Context()))

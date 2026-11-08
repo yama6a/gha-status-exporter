@@ -45,7 +45,7 @@ counts only completed runs.
 | `GHA_STATUS_TOKEN` | required | fine-grained personal access token |
 | `GHA_STATUS_SCAN_INTERVAL` | `5m` | time between scan starts |
 | `GHA_STATUS_RATE_LIMIT_RESERVE` | `1000` | skip a scan while fewer API requests than this remain |
-| `GHA_STATUS_MAX_RUN_AGE` | `0` | drop a workflow whose deciding run is older than this. A Go duration such as `192h`, or whole days such as `8d`. `0` is off |
+| `GHA_STATUS_MAX_RUN_AGE` | `0` | drop a workflow whose deciding run was created longer ago than this. The age counts from creation, so re-running an old run does not bring it back. A Go duration such as `192h`, or whole days such as `8d`. `0` is off |
 | `GHA_STATUS_LISTEN` | `:8080` | probes and `/metrics` |
 | `GHA_STATUS_LOG_LEVEL` | `info` | zap level |
 

@@ -33,6 +33,7 @@ type Run struct {
 	Status         string    `json:"status"`
 	Conclusion     string    `json:"conclusion"`
 	HeadBranch     string    `json:"head_branch"`
+	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 	HeadRepository struct {
 		ID int64 `json:"id"`
