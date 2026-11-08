@@ -30,10 +30,29 @@ tests:
           path: spec.template.spec.containers[0].env
           content: {name: GHA_STATUS_OWNER, value: yama6a}
       - equal:
-          path: spec.template.spec.containers[0].env[5].valueFrom.secretKeyRef
+          path: spec.template.spec.containers[0].env[6].valueFrom.secretKeyRef
           value: {name: gha-status-exporter-token, key: GITHUB_TOKEN}
       - notExists:
-          path: spec.template.spec.containers[0].env[5].valueFrom.secretKeyRef.optional
+          path: spec.template.spec.containers[0].env[6].valueFrom.secretKeyRef.optional
+
+  - it: sets max run age off by default
+    set:
+      owner: yama6a
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content: {name: GHA_STATUS_MAX_RUN_AGE, value: "0"}
+
+  - it: passes max run age to the env
+    set:
+      owner: yama6a
+      maxRunAge: 8d
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content: {name: GHA_STATUS_MAX_RUN_AGE, value: 8d}
 
   - it: renders no podmonitor
     set:

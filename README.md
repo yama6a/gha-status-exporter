@@ -45,10 +45,14 @@ counts only completed runs.
 | `GHA_STATUS_TOKEN` | required | fine-grained personal access token |
 | `GHA_STATUS_SCAN_INTERVAL` | `5m` | time between scan starts |
 | `GHA_STATUS_RATE_LIMIT_RESERVE` | `1000` | skip a scan while fewer API requests than this remain |
+| `GHA_STATUS_MAX_RUN_AGE` | `0` | drop a workflow whose deciding run is older than this. A Go duration such as `192h`, or whole days such as `8d`. `0` is off |
 | `GHA_STATUS_LISTEN` | `:8080` | probes and `/metrics` |
 | `GHA_STATUS_LOG_LEVEL` | `info` | zap level |
 
-The process exits at start when the owner or the token is empty.
+A workflow that has not run for a long time, for example in a repo whose Actions are disabled, stops alerting once
+its deciding run is older than the max age. The exporter then drops both series and does not fall back to an older run.
+
+The process exits at start when the owner or the token is empty, or when a value does not parse.
 
 ## Rate limit
 
@@ -73,6 +77,8 @@ kubectl -n gha-status create secret generic gha-status-exporter-token \
 ```
 
 An empty `owner` renders nothing. `values.yaml` documents every other value.
+
+`maxRunAge` sets `GHA_STATUS_MAX_RUN_AGE`. It defaults to `"0"`, which is off.
 
 ### Token
 

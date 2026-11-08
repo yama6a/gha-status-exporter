@@ -50,12 +50,13 @@ func run() error {
 
 	m := metrics.New(version)
 	scanner := &scan.Scanner{
-		Client:   github.New("https://api.github.com", cfg.Token),
-		Metrics:  m,
-		Log:      log,
-		Owner:    cfg.Owner,
-		Reserve:  cfg.RateLimitReserve,
-		Interval: cfg.ScanInterval,
+		Client:    github.New("https://api.github.com", cfg.Token),
+		Metrics:   m,
+		Log:       log,
+		Owner:     cfg.Owner,
+		Reserve:   cfg.RateLimitReserve,
+		Interval:  cfg.ScanInterval,
+		MaxRunAge: cfg.MaxRunAge,
 	}
 	srv := httpserver.New(httpserver.Options{
 		Addr: cfg.Listen, Metrics: m.Handler(), DrainTimeout: 5 * time.Second, Logger: log,
