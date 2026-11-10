@@ -5,7 +5,7 @@ go 1.27.3
 require (
 	github.com/prometheus/client_golang v1.25.0
 	github.com/stretchr/testify v1.12.1
-	github.com/yama6a/gokit v1.0.1
+	github.com/yama6a/gokit v1.0.2
 	go.uber.org/zap v1.28.0
 	golang.org/x/sync v0.25.0
 )
@@ -15,7 +15,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-chi/chi/v5 v5.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/pandatix/go-abnf v0.5.3 // indirect
+	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
 	github.com/prometheus/common v0.73.1 // indirect
 	github.com/prometheus/procfs v0.23.0 // indirect
