@@ -24,8 +24,8 @@ github.com/prometheus/procfs v0.23.0 h1:ad+S6FTkzwaMgacKLM5h6bNKExS+DMH0YiUwXItH
 github.com/prometheus/procfs v0.23.0/go.mod h1:3AVXO0FqLafyYFU/V/IQRZlC8Rgqz8Dm/x6pKLK+RIk=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
-github.com/yama6a/gokit v1.0.2 h1:cb1RgT0yqGI+DGSgv8uAuUfbA3OhhXic/haX/sYXLHg=
-github.com/yama6a/gokit v1.0.2/go.mod h1:RWpZCZ+9XnzKDiJpYEtG5pewHvuNrPBL8umEZvYoRM8=
+github.com/yama6a/gokit v1.0.3 h1:Q5uECB9dLi4YCsxmT3gFSfQnezDTRHlW6VJGboKOnI8=
+github.com/yama6a/gokit v1.0.3/go.mod h1:+NQ+CChBIp41xTzrnP66Vc08VLeTa2uMkJW5VcSZt/0=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
