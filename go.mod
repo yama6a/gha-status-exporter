@@ -5,7 +5,7 @@ go 1.27.4
 require (
 	github.com/prometheus/client_golang v1.25.0
 	github.com/stretchr/testify v1.12.1
-	github.com/yama6a/gokit v1.0.4
+	github.com/yama6a/gokit v1.0.5
 	go.uber.org/zap v1.28.0
 	golang.org/x/sync v0.25.0
 )
