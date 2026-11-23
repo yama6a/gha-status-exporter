@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build-$TARGETARCH \
     go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" \
     -o gha-status-exporter ./cmd/gha-status-exporter
 
-FROM gcr.io/distroless/static:nonroot@sha256:aafe993665bf6200db38a02c11a9351e782a84b6a45e7f33b6695638c88e3931
+FROM gcr.io/distroless/static:nonroot@sha256:8ce6dd87e9823c5b48dcfb2c8604714ccb351ce59607327bcc4957448da279b5
 COPY --from=build /app/gha-status-exporter /gha-status-exporter
 USER 65532:65532
 EXPOSE 8080
